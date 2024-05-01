@@ -39,7 +39,7 @@ function annotateCSError(scene: string, line: number, message: string): void {
 	if (sceneFilesPath === undefined) {
 		return;
 	}
-	const scenePath = path.join(sceneFilesPath, scene + ".txt");
+	const scenePath = path.join(scene.startsWith("cslib") ? '/Users/carey/Documents/Work/Github/choicescript_vscode/cslib' : sceneFilesPath, scene + ".txt");
 	vscode.workspace.openTextDocument(scenePath).then((document) => {
 		vscode.window.showTextDocument(document).then((editor) => {
 			line -= 1;
@@ -198,9 +198,10 @@ function registerCommands(context: vscode.ExtensionContext, controller: StatusBa
 			async () => {
 				const run = async () => {
 					annotationController.clearAll();
+					const cslibScenes = await workspaceProvider.findFiles(context.extensionPath, 'cslib/*.txt');
 					// Ideally we'd be able to sanity check that these are actually ChoiceScript 'scene' files,
 					// but given that raw text files with no commands *are* valid CS scenes, I don't think there's anything we can do.
-					const compiledGame = await csCompiler.compile(await workspaceProvider.findFiles(sceneFilesPath, '*.txt'));
+					const compiledGame = await csCompiler.compile(cslibScenes.concat(await workspaceProvider.findFiles(sceneFilesPath, '*.txt')));
 					await gameWebViewManager.runCompiledGame(compiledGame);
 				};
 				if (gameWebViewManager.isRunning()) {

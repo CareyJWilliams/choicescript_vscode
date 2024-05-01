@@ -29,7 +29,7 @@ interface UpdatedWordCount {
 	count?: number;
 }
 
-export const startServer = (connection: Connection, fsProvider: FileSystemProvider) => {
+export const startServer = (connection: Connection, fsProvider: FileSystemProvider, extensionPath?: string) => {
 
 	const fileSystemService = new FileSystemService(fsProvider);
 
@@ -90,8 +90,12 @@ export const startServer = (connection: Connection, fsProvider: FileSystemProvid
 
 	connection.onInitialized(async () => {
 		connection.workspace.getWorkspaceFolders().then(workspaces => {
-			if (workspaces && workspaces.length > 0)
+			if (workspaces && workspaces.length > 0) {
 				findAndIndexProjects(fileSystemService, workspaces);
+				fsProvider.findFiles('cslib/*.txt', extensionPath).then(scenes => {
+					projectIndex.setCSlibScenes(scenes);
+				});
+			}
 		});
 		// Handle custom requests from the client
 		connection.onNotification(CustomMessages.CoGStyleGuide, onCoGStyleGuide);

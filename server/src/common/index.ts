@@ -357,6 +357,7 @@ export class Index implements ProjectIndex {
 	private _documentScopes: Map<string, DocumentScopes>;
 	private _images: Map<string, IdentifierMultiIndex>;
 	private _parseErrors: Map<string, Diagnostic[]>;
+	private _cslibScenes: Map<string, string>;
 	constructor() {
 		this._projectIsIndexed = false;
 		this._platformWorkspacePath = "";
@@ -376,6 +377,7 @@ export class Index implements ProjectIndex {
 		this._documentScopes = new Map();
 		this._images = new Map();
 		this._parseErrors = new Map();
+		this._cslibScenes = new Map();
 	}
 	setPlatformWorkspacePath(path: string): void {
 		this._platformWorkspacePath = path;
@@ -404,6 +406,11 @@ export class Index implements ProjectIndex {
 	}
 	setSceneList(scenes: Array<string>): void {
 		this._scenes = scenes;
+	}
+	setCSlibScenes(uris: Array<string>): void {
+		for (const u of uris) {
+			this._cslibScenes.set(basename(u, '.txt'), u);
+		}
 	}
 	setLabels(sceneUri: string, newIndex: LabelIndex): void {
 		this._localLabels.set(sceneUri, new Map(newIndex));
@@ -460,6 +467,7 @@ export class Index implements ProjectIndex {
 			...this._documentScopes.keys(),
 			...this._flowControlEvents.keys(),
 			...this._parseErrors.keys(),
+			...this._cslibScenes.keys()
 		])];
 		return sceneUris.map(uri => { return basename(uri, '.txt'); });
 	}
